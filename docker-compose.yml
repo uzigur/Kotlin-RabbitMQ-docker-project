@@ -1,0 +1,36 @@
+version: '3.8'  # 1. The version of the Docker Compose syntax
+
+services:       # 2. Defines the "actors" in your system
+  
+  # --- Service 1: The RabbitMQ Server ---
+  rabbitmq:
+    image: rabbitmq:4.2-management  # Uses the official image with the UI plugin
+    container_name: my-rabbit-server
+    ports:
+      - "5672:5672"    # The "Back Door" (App communication)
+      - "15672:15672"  # The "Front Door" (Browser UI)
+    healthcheck:       # 3. The "Are you awake?" check
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s     # Check every 5 seconds
+      timeout: 5s      # Give up if check takes > 5s
+      retries: 10      # Try 10 times before failing
+    networks:
+      - rabbit-net
+
+  # --- Service 2: Your Kotlin Application ---
+  app:
+    build: .           # Build the image from the Dockerfile in the current folder
+    container_name: my-kotlin-app
+    depends_on:        # 4. Startup Order
+      rabbitmq:
+        condition: service_healthy # WAIT until the healthcheck passes!
+    environment:
+      - RABBIT_HOST=rabbitmq  # 5. Sets the env var we use in the code
+    stdin_open: true   # 6. Keeps the input stream open (interactive)
+    tty: true          # 6. Simulates a terminal
+    networks:
+      - rabbit-net
+
+networks:              # 7. Defines the private bridge network
+  rabbit-net:
+    driver: bridge
