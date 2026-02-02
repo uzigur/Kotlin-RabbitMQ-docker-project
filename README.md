@@ -25,7 +25,7 @@ This project demonstrates a **Producer/Consumer** messaging system written in **
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on Windows.
 
 ### Execution Steps
-To run the system, execute the following commands in your terminal:
+To run the system, put the .jar, Dockerfile, docker-compose.yml in the same dir, and execute the following commands in your terminal:
 
 1. **Start RabbitMQ** (Background mode):
    ```bash
